@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Live QR</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="https://i.ibb.co/DDpFdFTW/upiwebapp.png"
+    />
+
+    <style>
+      body {
+        background: linear-gradient(135deg, #eef2ff, #ffffff);
+        font-family: sans-serif;
+      }
+      .glass {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      }
+      .fade {
+        animation: fade 0.4s ease;
+      }
+      @keyframes fade {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* Corporate popup */
+      .popup {
+        animation: pop 0.4s ease;
+      }
+      @keyframes pop {
+        from {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+    </style>
+    <style>
+      .dot {
+        width: 10px;
+        height: 10px;
+        background: #6366f1;
+        border-radius: 50%;
+        animation: bounce 1s infinite ease-in-out;
+      }
+
+      .dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      /* Fade out */
+      .loader-hide {
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.5s ease;
+      }
+    </style>
+  </head>
+
+  <body class="flex items-center justify-center min-h-screen">
+    <!-- LOADER -->
+    <div
+      id="loader"
+      class="fixed inset-0 flex items-center justify-center bg-white z-[9999]"
+    >
+      <div class="text-center">
+        <!-- Logo (optional) -->
+        <img
+          src="https://i.ibb.co/DDpFdFTW/upiwebapp.png"
+          class="h-16 mx-auto mb-4 animate-pulse"
+        />
+
+        <!-- Spinner -->
+        <div class="flex gap-2 justify-center">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+
+        <p class="mt-4 text-sm text-gray-500">Loading QR Code...</p>
+      </div>
+    </div>
+
+    <script>
+      window.addEventListener("load", function () {
+        setTimeout(() => {
+          document.getElementById("loader").classList.add("loader-hide");
+        }, 1000); // 1 sec delay for smooth feel
+      });
+    </script>
+
+    <!-- QR BOX -->
+    <div id="qrContainer" class="glass p-6 text-center fade w-80">
+      <h2 class="text-xl font-bold mb-1">💳 Scan & Pay</h2>
+      <p id="shopName" class="text-gray-700 text-sm mb-2"></p>
+
+      <div id="qrBox" class="flex justify-center my-4"></div>
+
+      <!-- SINGLE IMAGE -->
+      <div class="mt-4 text-center">
+        <img
+          src="https://i.ibb.co/LXvZY0XZ/pyp.jpg"
+          alt="UPI Logo"
+          class="h-15 w-25 mx-auto rounded-lg shadow-md hover:scale-105 transition"
+        />
+      </div>
+
+      <br />
+
+      <!-- AMOUNT CARD -->
+      <div class="mt-4 flex justify-center">
+        <div
+          class="px-6 py-3 rounded-xl bg-white/70 backdrop-blur-lg shadow-lg border border-gray-200"
+        >
+          <p class="text-sm text-gray-500">Amount Payable</p>
+
+          <p
+            id="amountText"
+            class="text-3xl font-bold text-indigo-600 tracking-wide"
+          >
+            ₹ 0
+          </p>
+        </div>
+      </div>
+
+      <p class="text-sm text-gray-500 mt-2">Time Left</p>
+      <p id="timer" class="text-red-500 font-bold text-xl">60</p>
+
+      <p class="text-xs text-gray-400 mt-2">Auto updating...</p>
+    </div>
+
+    <!-- THANK YOU SCREEN -->
+    <div
+      id="thankScreen"
+      class="hidden fixed inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-white"
+    >
+      <div
+        class="glass p-8 text-center max-w-sm w-full popup border border-gray-200"
+      >
+        <!-- Icon -->
+        <div class="text-4xl mb-3">✅</div>
+
+        <!-- Heading -->
+        <h2 class="text-2xl font-bold text-gray-800 mb-1">
+          Payment Session Closed
+        </h2>
+
+        <!-- Subtext -->
+        <p class="text-gray-500 mb-4 text-sm">
+          Thank you for choosing our service
+        </p>
+
+        <!-- Shop Name -->
+        <p
+          id="shopFinal"
+          class="text-lg font-semibold text-indigo-600 mb-2"
+        ></p>
+
+        <!-- Footer Text -->
+        <p class="text-xs text-gray-400">
+          Secure • Fast • Trusted UPI Payments
+        </p>
+      </div>
+    </div>
+
+    <script>
+      let lastTime = 0;
+      let timerInterval;
+      let currentShop = "";
+
+      // Load QR
+      function loadQR() {
+        let data = JSON.parse(localStorage.getItem("upiData"));
+        if (!data) return;
+
+        if (data.time === lastTime) return;
+
+        lastTime = data.time;
+        currentShop = data.shop;
+
+        let url = `upi://pay?pa=${data.upi}&pn=${data.shop}&am=${data.amount}&tn=${data.product}&cu=INR`;
+
+        document.getElementById("qrBox").innerHTML = "";
+
+        new QRCode(document.getElementById("qrBox"), {
+          text: url,
+          width: 220,
+          height: 220,
+        });
+
+        // show details
+        document.getElementById("amountText").innerText = "₹ " + data.amount;
+        document.getElementById("shopName").innerText = data.shop;
+
+        // reset UI
+        document.getElementById("qrContainer").classList.remove("hidden");
+        document.getElementById("thankScreen").classList.add("hidden");
+
+        startTimer();
+      }
+
+      // Timer
+      function startTimer() {
+        clearInterval(timerInterval);
+
+        let time = 60;
+        document.getElementById("timer").innerText = time;
+
+        timerInterval = setInterval(() => {
+          time--;
+          document.getElementById("timer").innerText = time;
+
+          if (time <= 0) {
+            clearInterval(timerInterval);
+
+            // 🔥 Hide QR + Show Thank You Screen
+            document.getElementById("qrContainer").classList.add("hidden");
+            document.getElementById("thankScreen").classList.remove("hidden");
+
+            document.getElementById("shopFinal").innerText = currentShop;
+          }
+        }, 1000);
+      }
+
+      // Auto refresh
+      setInterval(loadQR, 1000);
+      loadQR();
+    </script>
+  </body>
+</html>
