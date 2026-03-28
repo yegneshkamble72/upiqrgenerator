@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#4f46e5" />
+    <title>YK OFFICIAL - UPI QR GENERATOR</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="https://i.ibb.co/DDpFdFTW/upiwebapp.png"
+    />
+
+    <style>
+      body {
+        background: linear-gradient(135deg, #eef2ff, #ffffff);
+        font-family: sans-serif;
+      }
+      .glass {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+    <style>
+      .dot {
+        width: 10px;
+        height: 10px;
+        background: #6366f1;
+        border-radius: 50%;
+        animation: bounce 1s infinite ease-in-out;
+      }
+
+      .dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      /* Fade out */
+      .loader-hide {
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.5s ease;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- LOADER -->
+    <div
+      id="loader"
+      class="fixed inset-0 flex items-center justify-center bg-white z-[9999]"
+    >
+      <div class="text-center">
+        <!-- Logo (optional) -->
+        <img
+          src="https://i.ibb.co/DDpFdFTW/upiwebapp.png"
+          class="h-16 mx-auto mb-4 animate-pulse"
+        />
+
+        <!-- Spinner -->
+        <div class="flex gap-2 justify-center">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+
+        <p class="mt-4 text-sm text-gray-500">Loading Secure Payment...</p>
+      </div>
+    </div>
+
+    <script>
+      window.addEventListener("load", function () {
+        setTimeout(() => {
+          document.getElementById("loader").classList.add("loader-hide");
+        }, 1000); // 1 sec delay for smooth feel
+      });
+    </script>
+
+    <!-- NAVBAR -->
+    <nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-lg shadow-sm">
+      <div
+        class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center"
+      >
+        <!-- Logo -->
+        <div class="flex items-center gap-2">
+          <img src="https://i.ibb.co/DDpFdFTW/upiwebapp.png" class="h-8" />
+          <img src="https://i.ibb.co/hJCHgThF/logo-yk-crop.png" class="h-8" />
+          <span class="font-bold text-gray-800">YK OFFICIAL</span>
+        </div>
+
+        <!-- Menu -->
+        <div class="hidden md:flex gap-6 text-sm text-gray-600">
+          <a href="#" class="hover:text-indigo-600">Home</a>
+          <a href="#" onclick="openHelp()" class="hover:text-indigo-600"
+            >Help</a
+          >
+          <a href="#" onclick="openContact()" class="hover:text-indigo-600"
+            >Contact</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN SECTION -->
+    <section
+      class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-indigo-50 to-white pt-20"
+    >
+      <div class="glass p-8 w-full max-w-lg relative">
+        <!-- Heading -->
+        <div class="text-center mb-6">
+          <h1 class="text-3xl font-bold text-gray-800">💳 Payment Portal</h1>
+          <p class="text-sm text-gray-500">Secure UPI Payment Gateway</p>
+        </div>
+
+        <!-- Inputs -->
+        <input
+          id="shop"
+          value="YK OFFICIAL STORE"
+          class="w-full p-3 mb-3 border border-gray-200 rounded-lg bg-gray-100 text-gray-600"
+          readonly
+        />
+
+        <input
+          id="name"
+          placeholder="Customer Name"
+          class="w-full p-3 mb-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none"
+        />
+
+        <input
+          id="product"
+          placeholder="Product Details"
+          class="w-full p-3 mb-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none"
+        />
+
+        <select
+          id="upiSelect"
+          class="w-full p-3 mb-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none"
+        >
+          <option value="">Select UPI</option>
+          <option value="yk@upi">yk@upi</option>
+          <option value="yk@okaxis">yk@okaxis</option>
+          <option value="yk@paytm">yk@paytm</option>
+          <option value="custom">Custom UPI</option>
+        </select>
+
+        <input
+          id="upi"
+          placeholder="Enter Custom UPI ID"
+          class="w-full p-3 mb-3 border border-gray-200 rounded-lg hidden"
+        />
+
+        <input
+          id="amount"
+          placeholder="Enter Amount ₹"
+          type="number"
+          class="w-full p-3 mb-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none"
+        />
+
+        <!-- Button -->
+        <button
+          onclick="generateQR()"
+          class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-3 rounded-lg shadow-md hover:scale-[1.03] transition"
+        >
+          Generate QR
+        </button>
+
+        <!-- Footer -->
+        <div class="flex justify-between mt-5 text-sm">
+          <button
+            onclick="openHelp()"
+            class="text-indigo-600 font-medium hover:underline"
+          >
+            Help
+          </button>
+
+          <button
+            onclick="openContact()"
+            class="text-purple-600 font-medium hover:underline"
+          >
+            Contact
+          </button>
+        </div>
+        <div class="text-center mt-4 text-xs text-gray-500">
+          By continuing, you agree to our
+          <span
+            onclick="openTerms()"
+            class="text-indigo-600 cursor-pointer hover:underline"
+          >
+            Terms & Privacy
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TERMS & PRIVACY POPUP -->
+    <div
+      id="termsPopup"
+      class="hidden fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50 p-4"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-6 overflow-y-auto max-h-[90vh]"
+      >
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold text-gray-800">
+            📄 Terms & Privacy Policy
+          </h2>
+          <button
+            onclick="closeTerms()"
+            class="text-gray-500 hover:text-red-500 text-xl"
+          >
+            ✕
+          </button>
+        </div>
+
+        <!-- Content -->
+        <div class="text-sm text-gray-600 space-y-4 leading-relaxed">
+          <p>
+            <strong>1. Information Collection</strong><br />
+            We collect customer details such as name, product, and payment
+            amount only for transaction processing.
+          </p>
+
+          <p>
+            <strong>2. Data Usage</strong><br />
+            The collected data is securely stored and may be used for analytics
+            and business operations.
+          </p>
+
+          <p>
+            <strong>3. Payment Security</strong><br />
+            All payments are processed via trusted UPI applications. We do not
+            store sensitive banking details.
+          </p>
+
+          <p>
+            <strong>4. User Responsibility</strong><br />
+            Users must ensure correct UPI ID and payment details before
+            proceeding.
+          </p>
+
+          <p>
+            <strong>5. Privacy Protection</strong><br />
+            Your data will not be shared with third parties without consent.
+          </p>
+
+          <p>
+            <strong>6. Changes to Policy</strong><br />
+            We reserve the right to update this policy at any time.
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-6 flex justify-between items-center">
+          <span class="text-xs text-gray-400">© 2026 Secure UPI System</span>
+
+          <button
+            onclick="acceptTerms()"
+            class="bg-green-600 text-white px-5 py-2 rounded-lg hover:scale-105 transition"
+          >
+            Accept ✔
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACT POPUP -->
+    <div
+      id="contactPopup"
+      class="hidden fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center"
+    >
+      <div class="glass p-6 w-80 text-center">
+        <h2 class="text-lg font-bold mb-2">📞 Contact Us</h2>
+        <p class="text-sm text-gray-600">Email: support@ykofficial.com</p>
+        <p class="text-sm text-gray-600">Phone: +91 7219274312</p>
+
+        <button
+          onclick="closeContact()"
+          class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+
+    <!-- HELP POPUP -->
+    <div
+      id="helpPopup"
+      class="hidden fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center"
+    >
+      <div class="glass p-6 w-80 text-center">
+        <h2 class="text-lg font-bold mb-2">❓ Help</h2>
+
+        <p class="text-sm text-gray-600">
+          Fill details → Generate QR → Scan & Pay using any UPI app
+        </p>
+
+        <button
+          onclick="closeHelp()"
+          class="mt-4 bg-purple-600 text-white px-4 py-2 rounded"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+
+    <script>
+      function openContact() {
+        const el = document.getElementById("contactPopup");
+        if (el) el.classList.remove("hidden");
+      }
+
+      function closeContact() {
+        const el = document.getElementById("contactPopup");
+        if (el) el.classList.add("hidden");
+      }
+
+      function openHelp() {
+        const el = document.getElementById("helpPopup");
+        if (el) el.classList.remove("hidden");
+      }
+
+      function closeHelp() {
+        const el = document.getElementById("helpPopup");
+        if (el) el.classList.add("hidden");
+      }
+
+      window.onclick = function (e) {
+        if (e.target.id === "contactPopup") {
+          closeContact();
+        }
+        if (e.target.id === "helpPopup") {
+          closeHelp();
+        }
+      };
+    </script>
+
+    <!-- SUCCESS POPUP -->
+    <div
+      id="successPopup"
+      class="hidden fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50"
+    >
+      <div class="glass p-6 w-80 text-center popup border border-gray-200">
+        <div class="text-4xl mb-2">✅</div>
+
+        <h2 class="text-xl font-bold text-gray-800 mb-1">QR Generated</h2>
+
+        <p class="text-sm text-gray-500 mb-4">
+          Your payment QR has been created successfully
+        </p>
+
+        <button
+          onclick="closeSuccess()"
+          class="bg-indigo-600 text-white px-5 py-2 rounded-lg shadow hover:scale-105 transition"
+        >
+          Continue
+        </button>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const upiSelect = document.getElementById("upiSelect");
+        const upiInput = document.getElementById("upi");
+
+        if (upiSelect) {
+          upiSelect.addEventListener("change", function () {
+            if (this.value === "custom") {
+              upiInput.classList.remove("hidden");
+            } else {
+              upiInput.classList.add("hidden");
+            }
+          });
+        }
+      });
+    </script>
+
+    <script>
+      let qrWindow = null;
+      let pendingData = null;
+
+      /* ---------------- GENERATE QR ---------------- */
+      function generateQR() {
+        let name = document.getElementById("name").value;
+        let shop = document.getElementById("shop").value;
+        let product = document.getElementById("product").value;
+        let upiSelect = document.getElementById("upiSelect").value;
+        let upi = document.getElementById("upi").value;
+        let amount = document.getElementById("amount").value;
+
+        let upiVal = upiSelect === "custom" ? upi : upiSelect;
+
+        if (!name || !upiVal || !amount) {
+          alert("Fill all details");
+          return;
+        }
+
+        // 👉 STORE DATA TEMP (abhi open nahi karenge)
+        pendingData = {
+          name,
+          shop,
+          product,
+          amount,
+          upi: upiVal,
+          time: new Date().toLocaleString(),
+          timeStamp: Date.now(),
+        };
+
+        // 🔊 SOUND
+        let sound = document.getElementById("successSound");
+        if (sound) {
+          sound.currentTime = 0;
+          sound.play().catch(() => {});
+        }
+
+        // 🎉 SHOW POPUP
+        document.getElementById("successPopup").classList.remove("hidden");
+      }
+
+      /* ---------------- CONTINUE BUTTON ---------------- */
+      function closeSuccess() {
+        document.getElementById("successPopup").classList.add("hidden");
+
+        if (!pendingData) return;
+
+        // 🔥 SAVE FOR QR PAGE
+        localStorage.setItem("upiData", JSON.stringify(pendingData));
+
+        // 🔥 OPEN TAB (USER CLICK → ALLOWED)
+        if (!qrWindow || qrWindow.closed) {
+          qrWindow = window.open("qr.html", "QR_WINDOW");
+        } else {
+          qrWindow.focus();
+        }
+
+        // 🔥 SEND TO GOOGLE SHEET
+        sendToSheet(pendingData);
+      }
+
+      /* ---------------- GOOGLE SHEET ---------------- */
+      function sendToSheet(data) {
+        fetch("YOUR_SCRIPT_URL_HERE", {
+          method: "POST",
+          body: JSON.stringify(data),
+        })
+          .then((res) => res.text())
+          .then((res) => console.log("Saved:", res))
+          .catch((err) => console.error(err));
+      }
+    </script>
+    <audio id="successSound" preload="auto">
+      <source
+        src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3?filename=success-1-6297.mp3"
+        type="audio/mpeg"
+      />
+    </audio>
+  </body>
+</html>
