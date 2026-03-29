@@ -8,6 +8,7 @@
     <title>YK OFFICIAL - UPI QR GENERATOR</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <link
       rel="icon"
       type="image/png"
@@ -20,6 +21,14 @@
         background: linear-gradient(135deg, #eef2ff, #ffffff);
         font-family: sans-serif;
       }
+      .glass {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+    <style>
       .glass {
         background: rgba(255, 255, 255, 0.6);
         backdrop-filter: blur(20px);
@@ -102,13 +111,20 @@
         <!-- Logo -->
         <div class="flex items-center gap-2">
           <img src="https://i.ibb.co/DDpFdFTW/upiwebapp.png" class="h-8" />
-          <img src="https://i.ibb.co/hJCHgThF/logo-yk-crop.png" class="h-8" />
-          <span class="font-bold text-gray-800">YK OFFICIAL</span>
+          <!-- <img src="https://i.ibb.co/hJCHgThF/logo-yk-crop.png" class="h-8" /> -->
+          <span class="font-bold text-xl text-gray-800">UPI QR GENERATOR</span>
         </div>
+        <!-- MOBILE MENU BUTTON -->
+        <button onclick="toggleMenu()" class="md:hidden text-2xl text-gray-700">
+          ☰
+        </button>
 
         <!-- Menu -->
         <div class="hidden md:flex gap-6 text-sm text-gray-600">
           <a href="#" class="hover:text-indigo-600">Home</a>
+          <a href="#" onclick="openAbout()" class="hover:text-indigo-600"
+            >About</a
+          >
           <a href="#" onclick="openHelp()" class="hover:text-indigo-600"
             >Help</a
           >
@@ -118,6 +134,120 @@
         </div>
       </div>
     </nav>
+
+    <!-- MOBILE MENU -->
+    <div
+      id="mobileMenu"
+      class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-50"
+    >
+      <!-- SIDE PANEL -->
+      <div
+        id="menuPanel"
+        class="w-72 h-full bg-white/90 backdrop-blur-xl shadow-2xl p-6 transform -translate-x-full transition duration-300 rounded-r-2xl"
+      >
+        <!-- HEADER -->
+        <div class="flex items-center gap-3 mb-8">
+          <img src="https://i.ibb.co/DDpFdFTW/upiwebapp.png" class="h-10" />
+          <div>
+            <h2 class="font-bold text-lg text-gray-800">UPI QR</h2>
+            <p class="text-xs text-gray-500">Secure Payment</p>
+          </div>
+        </div>
+
+        <!-- CLOSE BTN -->
+        <button
+          onclick="toggleMenu()"
+          class="absolute top-4 right-4 text-gray-500 hover:text-red-500 text-xl"
+        >
+          ✕
+        </button>
+
+        <!-- MENU LINKS -->
+        <div class="flex flex-col gap-3 text-gray-700">
+          <a
+            href="#"
+            onclick="toggleMenu()"
+            class="flex items-center gap-3 p-3 rounded-lg hover:bg-indigo-50 hover:text-indigo-600 transition"
+          >
+            <i data-lucide="home"></i>
+            Home
+          </a>
+
+          <a
+            href="#"
+            onclick="
+              openAbout();
+              toggleMenu();
+            "
+            class="flex items-center gap-3 p-3 rounded-lg hover:bg-indigo-50 hover:text-indigo-600 transition"
+          >
+            <i data-lucide="info"></i>
+            About
+          </a>
+
+          <a
+            href="#"
+            onclick="
+              openHelp();
+              toggleMenu();
+            "
+            class="flex items-center gap-3 p-3 rounded-lg hover:bg-indigo-50 hover:text-indigo-600 transition"
+          >
+            <i data-lucide="help-circle"></i>
+            Help
+          </a>
+
+          <a
+            href="#"
+            onclick="
+              openContact();
+              toggleMenu();
+            "
+            class="flex items-center gap-3 p-3 rounded-lg hover:bg-indigo-50 hover:text-indigo-600 transition"
+          >
+            <i data-lucide="phone"></i>
+            Contact
+          </a>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="absolute bottom-6 left-6 text-xs text-gray-400">
+          © 2026 Secure UPI
+        </div>
+      </div>
+    </div>
+
+    <script>
+      lucide.createIcons();
+    </script>
+
+    <script>
+      function toggleMenu() {
+        const menu = document.getElementById("mobileMenu");
+        const panel = document.getElementById("menuPanel");
+
+        if (menu.classList.contains("hidden")) {
+          menu.classList.remove("hidden");
+
+          setTimeout(() => {
+            panel.classList.remove("-translate-x-full");
+          }, 10);
+        } else {
+          panel.classList.add("-translate-x-full");
+
+          setTimeout(() => {
+            menu.classList.add("hidden");
+          }, 300);
+        }
+      }
+
+      // click outside close
+      window.addEventListener("click", function (e) {
+        if (e.target.id === "mobileMenu") {
+          toggleMenu();
+        }
+      });
+    </script>
 
     <!-- MAIN SECTION -->
     <section
@@ -533,6 +663,161 @@
           .then((res) => console.log("Saved:", res))
           .catch((err) => console.error(err));
       }
+    </script>
+
+    <!-- ABOUT POPUP -->
+    <div
+      id="aboutPopup"
+      class="hidden fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-3 sm:p-6"
+    >
+      <div
+        class="popup bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto p-4 sm:p-8 relative"
+      >
+        <!-- CLOSE -->
+        <button
+          onclick="closeAbout()"
+          class="absolute top-3 right-4 text-gray-500 hover:text-red-500 text-2xl"
+        >
+          ✕
+        </button>
+
+        <!-- HEADER -->
+        <section class="py-4 sm:py-6 px-2">
+          <div class="text-center mb-6 sm:mb-10">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">
+              About Our Platform
+            </h2>
+            <p class="text-gray-600 text-sm mt-2">
+              Smart, Secure & Fast UPI QR Payment System
+            </p>
+          </div>
+
+          <!-- FEATURES -->
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6"
+          >
+            <div class="glass p-5 text-center">
+              <h3 class="font-semibold text-lg mb-2">⚡ Instant Payments</h3>
+              <p class="text-sm text-gray-600">
+                Generate QR & receive payments instantly
+              </p>
+            </div>
+
+            <div class="glass p-5 text-center">
+              <h3 class="font-semibold text-lg mb-2">🔒 Secure System</h3>
+              <p class="text-sm text-gray-600">
+                No sensitive data stored, fully safe
+              </p>
+            </div>
+
+            <div class="glass p-5 text-center">
+              <h3 class="font-semibold text-lg mb-2">📊 Smart Tracking</h3>
+              <p class="text-sm text-gray-600">Track payments easily</p>
+            </div>
+          </div>
+
+          <!-- DETAILS -->
+          <div class="mt-6 sm:mt-10">
+            <div class="glass p-5 sm:p-6">
+              <h3 class="text-lg sm:text-xl font-bold mb-2">Who We Are</h3>
+              <p class="text-gray-600 text-sm leading-relaxed">
+                This platform helps businesses generate UPI QR codes, accept
+                payments, and manage transactions in real-time with a modern UI.
+              </p>
+
+              <h3 class="text-lg sm:text-xl font-bold mt-4 mb-2">
+                Our Mission
+              </h3>
+              <p class="text-gray-600 text-sm leading-relaxed">
+                To provide fast, secure and seamless digital payment solutions.
+              </p>
+            </div>
+          </div>
+
+          <!-- STATS -->
+          <div
+            class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-10 text-center"
+          >
+            <div class="glass p-4">
+              <h2
+                class="counter text-indigo-600 text-xl sm:text-2xl font-bold"
+                data-target="1000"
+              >
+                0
+              </h2>
+              <p class="text-xs sm:text-sm text-gray-500">Transactions</p>
+            </div>
+
+            <div class="glass p-4">
+              <h2
+                class="counter text-indigo-600 text-xl sm:text-2xl font-bold"
+                data-target="50"
+              >
+                0
+              </h2>
+              <p class="text-xs sm:text-sm text-gray-500">Users</p>
+            </div>
+
+            <div class="glass p-4">
+              <h2
+                class="counter text-indigo-600 text-xl sm:text-2xl font-bold"
+                data-target="99"
+              >
+                0
+              </h2>
+              <p class="text-xs sm:text-sm text-gray-500">Success %</p>
+            </div>
+
+            <div class="glass p-4">
+              <h2 class="text-indigo-600 text-xl sm:text-2xl font-bold">
+                24/7
+              </h2>
+              <p class="text-xs sm:text-sm text-gray-500">Support</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+
+    <script>
+      function openAbout() {
+        document.getElementById("aboutPopup").classList.remove("hidden");
+
+        // start counter animation
+        let counters = document.querySelectorAll(".counter");
+
+        counters.forEach((counter) => {
+          counter.innerText = 0;
+
+          let update = () => {
+            let target = +counter.getAttribute("data-target");
+            let count = +counter.innerText;
+
+            let inc = target / 50;
+
+            if (count < target) {
+              counter.innerText = Math.ceil(count + inc);
+              setTimeout(update, 30);
+            } else {
+              counter.innerText = target;
+            }
+          };
+          update();
+        });
+      }
+
+      function closeAbout() {
+        document.getElementById("aboutPopup").classList.add("hidden");
+      }
+
+      // click outside close
+      window.onclick = function (e) {
+        if (e.target.id === "aboutPopup") {
+          closeAbout();
+        }
+      };
     </script>
     <audio id="successSound" preload="auto">
       <source
