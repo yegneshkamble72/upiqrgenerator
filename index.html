@@ -133,7 +133,7 @@
         <!-- Inputs -->
         <input
           id="shop"
-          value="YK OFFICIAL STORE"
+          value="Dummy Shop Name"
           class="w-full p-3 mb-3 border border-gray-200 rounded-lg bg-gray-100 text-gray-600"
           readonly
         />
@@ -210,77 +210,142 @@
       </div>
     </section>
 
-    <!-- TERMS & PRIVACY POPUP -->
+    <!-- PREMIUM TERMS & PRIVACY POPUP -->
     <div
       id="termsPopup"
-      class="hidden fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50 p-4"
+      class="hidden fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4"
     >
       <div
-        class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-6 overflow-y-auto max-h-[90vh]"
+        class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl w-full max-w-2xl p-6 max-h-[90vh] flex flex-col"
       >
         <!-- Header -->
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold text-gray-800">
-            📄 Terms & Privacy Policy
-          </h2>
+        <div class="flex justify-between items-center border-b pb-3 mb-3">
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">Privacy & Terms</h2>
+            <p class="text-xs text-gray-500">Secure UPI Payment Policy</p>
+          </div>
+
           <button
             onclick="closeTerms()"
-            class="text-gray-500 hover:text-red-500 text-xl"
+            class="text-gray-400 hover:text-red-500 text-xl"
           >
             ✕
           </button>
         </div>
 
-        <!-- Content -->
-        <div class="text-sm text-gray-600 space-y-4 leading-relaxed">
+        <!-- SCROLL CONTENT -->
+        <div
+          id="termsContent"
+          class="flex-1 overflow-y-auto text-sm text-gray-600 space-y-4 pr-2"
+        >
           <p>
-            <strong>1. Information Collection</strong><br />
-            We collect customer details such as name, product, and payment
-            amount only for transaction processing.
+            <strong>1. Data Collection</strong><br />
+            We collect basic user details including name, product, amount, and
+            UPI ID for payment processing and record keeping.
           </p>
 
           <p>
-            <strong>2. Data Usage</strong><br />
-            The collected data is securely stored and may be used for analytics
-            and business operations.
+            <strong>2. Usage of Data</strong><br />
+            Data is securely used for transaction tracking, analytics, and
+            improving payment experience.
           </p>
 
           <p>
             <strong>3. Payment Security</strong><br />
-            All payments are processed via trusted UPI applications. We do not
-            store sensitive banking details.
+            All payments are processed via trusted UPI platforms. We do not
+            store any sensitive banking credentials.
           </p>
 
           <p>
             <strong>4. User Responsibility</strong><br />
-            Users must ensure correct UPI ID and payment details before
-            proceeding.
+            Users must verify payment details before proceeding. Incorrect
+            details are user responsibility.
           </p>
 
           <p>
             <strong>5. Privacy Protection</strong><br />
-            Your data will not be shared with third parties without consent.
+            Your data is not sold or shared with third parties without consent.
           </p>
 
           <p>
-            <strong>6. Changes to Policy</strong><br />
-            We reserve the right to update this policy at any time.
+            <strong>6. System Logs</strong><br />
+            Transactions may be logged for security, audit, and fraud prevention
+            purposes.
           </p>
+
+          <p>
+            <strong>7. Policy Updates</strong><br />
+            We may update this policy anytime without prior notice.
+          </p>
+
+          <p>
+            <strong>8. Agreement</strong><br />
+            By continuing, you agree to all terms and privacy policies of this
+            platform.
+          </p>
+
+          <!-- Extra spacing for scroll -->
+          <div class="h-4"></div>
         </div>
 
         <!-- Footer -->
-        <div class="mt-6 flex justify-between items-center">
-          <span class="text-xs text-gray-400">© 2026 Secure UPI System</span>
+        <div class="border-t pt-4 mt-3 flex justify-between items-center">
+          <span class="text-xs text-gray-400"
+            >© 2026 Secure Payment System</span
+          >
 
           <button
+            id="acceptBtn"
             onclick="acceptTerms()"
-            class="bg-green-600 text-white px-5 py-2 rounded-lg hover:scale-105 transition"
+            disabled
+            class="bg-gray-400 text-white px-6 py-2 rounded-lg cursor-not-allowed transition"
           >
-            Accept ✔
+            Accept & Continue
           </button>
         </div>
       </div>
     </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const popup = document.getElementById("termsPopup");
+        const content = document.getElementById("termsContent");
+        const btn = document.getElementById("acceptBtn");
+
+        // OPEN
+        window.openTerms = function () {
+          popup.classList.remove("hidden");
+        };
+
+        // CLOSE
+        window.closeTerms = function () {
+          popup.classList.add("hidden");
+        };
+
+        // ACCEPT
+        window.acceptTerms = function () {
+          localStorage.setItem("termsAccepted", "true");
+          popup.classList.add("hidden");
+        };
+
+        // SCROLL LOCK SYSTEM
+        content.addEventListener("scroll", function () {
+          if (
+            content.scrollTop + content.clientHeight >=
+            content.scrollHeight - 5
+          ) {
+            btn.disabled = false;
+            btn.classList.remove("bg-gray-400", "cursor-not-allowed");
+            btn.classList.add("bg-green-600", "hover:scale-105");
+          }
+        });
+
+        // AUTO OPEN FIRST TIME
+        if (!localStorage.getItem("termsAccepted")) {
+          popup.classList.remove("hidden");
+        }
+      });
+    </script>
 
     <!-- CONTACT POPUP -->
     <div
@@ -457,10 +522,13 @@
 
       /* ---------------- GOOGLE SHEET ---------------- */
       function sendToSheet(data) {
-        fetch("YOUR_SCRIPT_URL_HERE", {
-          method: "POST",
-          body: JSON.stringify(data),
-        })
+        fetch(
+          "https://script.google.com/macros/s/AKfycbxhrx56mnQ5zjP9thaFwXb1Z7qQnH4heen1L38R11DPg9JU16dBbRea79hLp83cs0PfmA/exec",
+          {
+            method: "POST",
+            body: JSON.stringify(data),
+          },
+        )
           .then((res) => res.text())
           .then((res) => console.log("Saved:", res))
           .catch((err) => console.error(err));
@@ -474,3 +542,43 @@
     </audio>
   </body>
 </html>
+
+<!-- Google sheet code-->
+
+<!--
+ function doPost(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+
+    // Parse incoming data
+    var data = JSON.parse(e.postData.contents);
+
+    // Insert row
+    sheet.appendRow([
+      data.name || "",
+      data.shop || "",
+      data.product || "",
+      data.amount || "",
+      data.upi || "",
+      data.time || new Date()
+    ]);
+
+    // Success response
+    return ContentService
+      .createTextOutput(JSON.stringify({status: "success"}))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (error) {
+
+    return ContentService
+      .createTextOutput(JSON.stringify({status: "error", message: error}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+  
+
+  { Sheet me ye colomn } 
+
+Name | Shop | Product | Amount | UPI | Time
+
+-->
