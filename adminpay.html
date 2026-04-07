@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Payment Dashboard</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="https://i.ibb.co/DDpFdFTW/upiwebapp.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
+        .glass { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.4); }
+        .sidebar-link.active { background: #6366f1; color: white; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3); }
+        .stats-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .stats-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05); }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+        .login-fade { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <div id="loginScreen" class="fixed inset-0 z-[200] bg-slate-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-md glass p-8 rounded-[2.5rem] shadow-2xl border-none login-fade text-center">
+            <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-black-200">
+                <!-- <i data-lucide="shield-check" class="text-white w-8 h-8"></i> -->
+                <img src="https://i.ibb.co/DDpFdFTW/upiwebapp.png" alt="Logo">
+            </div>
+            <h1 class="text-2xl font-bold text-slate-900">Payment Admin Dashboard</h1>
+            <p class="text-slate-500 text-sm mt-1 mb-8">Secure Management</p>
+
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1">Username</label>
+                    <div class="relative">
+                        <i data-lucide="user" class="absolute left-4 top-3.5 w-5 h-5 text-slate-400"></i>
+                        <input type="text" id="username" placeholder="Admin ID" class="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1">Secret Password</label>
+                    <div class="relative">
+                        <i data-lucide="lock" class="absolute left-4 top-3.5 w-5 h-5 text-slate-400"></i>
+                        <input type="password" id="password" placeholder="••••••••" class="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
+                    </div>
+                </div>
+
+                <button onclick="handleLogin()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-6">
+                    Enter Dashboard <i data-lucide="key" class="w-5 h-5"></i>
+                </button>
+                <p id="loginError" class="text-red-500 text-xs font-bold text-center mt-4 hidden">Invalid Credentials. Access Denied.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboardContent" class="hidden">
+        <div id="loader" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center transition-opacity duration-500">
+            <div class="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+            <p class="mt-4 text-[10px] font-bold text-indigo-600 tracking-widest animate-pulse uppercase">Syncing Ledger</p>
+        </div>
+
+        <aside class="hidden lg:flex flex-col w-64 fixed h-full bg-white border-r border-slate-200 p-6 z-40">
+            <div class="flex items-center gap-3 mb-10">
+                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <i data-lucide="layout-dashboard" class="text-white w-6 h-6"></i>
+                </div>
+                <span class="font-bold text-xl">YK <span class="text-indigo-600">ADMIN</span></span>
+            </div>
+            
+            <nav class="space-y-2 flex-1">
+                <a href="#" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all">
+                    <i data-lucide="home" class="w-5 h-5"></i> Dashboard
+                </a>
+                <a href="javascript:void(0)" onclick="scrollToTxn()" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 transition-all">
+                    <i data-lucide="credit-card" class="w-5 h-5"></i> Transactions
+                </a>
+                <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 transition-all mt-4">
+                    <i data-lucide="log-out" class="w-5 h-5"></i> Logout
+                </button>
+            </nav>
+
+            <div class="p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
+                <p class="text-[10px] font-bold text-indigo-600 mb-1">ENTERPRISE ACCESS</p>
+                <p class="text-[10px] text-indigo-400">Secure UPI Monitoring</p>
+            </div>
+        </aside>
+
+        <main class="lg:ml-64 min-h-screen pb-24 lg:pb-10">
+            <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 py-4 flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold">Command Center</h2>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Real-time stats</p>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button onclick="fetchData()" class="p-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm active:scale-95 transition-all">
+                        <i data-lucide="refresh-cw" id="refreshIcon" class="w-5 h-5 text-indigo-600"></i>
+                    </button>
+                    <div class="w-10 h-10 rounded-full border-2 border-indigo-100 p-0.5">
+                        <img src="https://ui-avatars.com/api/?name=YK+Admin&background=6366f1&color=fff" class="rounded-full" alt="User">
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="stats-card glass p-8 rounded-[2.5rem] relative overflow-hidden group">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all"></div>
+                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Total Revenue</p>
+                        <h3 id="totalRevenue" class="text-4xl font-extrabold mt-2 text-slate-900 tracking-tight">₹0.00</h3>
+                        <p class="text-[10px] text-green-500 font-bold mt-4 flex items-center gap-1">
+                            <i data-lucide="trending-up" class="w-3 h-3"></i> Verified Payments
+                        </p>
+                    </div>
+
+                    <div class="stats-card glass p-8 rounded-[2.5rem] group">
+                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Successful Orders</p>
+                        <h3 id="totalCount" class="text-4xl font-extrabold mt-2 text-slate-900">0</h3>
+                        <p class="text-[10px] text-indigo-400 font-bold mt-4 flex items-center gap-1 uppercase tracking-tighter">
+                            <i data-lucide="activity" class="w-3 h-3"></i> Live Sync Active
+                        </p>
+                    </div>
+
+                    <div class="stats-card glass p-8 rounded-[2.5rem] group">
+                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Average Ticket</p>
+                        <h3 id="avgTicket" class="text-4xl font-extrabold mt-2 text-slate-900">₹0</h3>
+                        <p class="text-[10px] text-slate-400 font-bold mt-4 uppercase tracking-tighter">Per Customer</p>
+                    </div>
+                </div>
+
+                <div id="transactionSection" class="space-y-4">
+                    <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+                        <div class="relative w-full md:w-96">
+                            <i data-lucide="search" class="absolute left-4 top-3.5 w-5 h-5 text-slate-400"></i>
+                            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search transactions..." 
+                                class="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all shadow-sm">
+                        </div>
+                        <button onclick="exportData()" class="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm">
+                            <i data-lucide="download" class="w-5 h-5"></i> Export CSV
+                        </button>
+                    </div>
+
+                    <div class="glass rounded-[2.5rem] overflow-hidden shadow-sm border-none">
+                        <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-white/30">
+                            <h4 class="font-bold text-slate-800">Transaction History</h4>
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                <span class="text-[10px] font-bold text-green-600 uppercase tracking-widest">Connected</span>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table id="txnTable" class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest bg-slate-50/50">
+                                        <th class="px-8 py-5">Customer</th>
+                                        <th class="px-8 py-5">Merchant</th>
+                                        <th class="px-8 py-5">Product</th>
+                                        <th class="px-8 py-5">Amount</th>
+                                        <th class="px-8 py-5">Status</th>
+                                        <th class="px-8 py-5">Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody" class="text-sm divide-y divide-slate-50">
+                                    </tbody>
+                            </table>
+                        </div>
+                        
+                        <div id="noData" class="hidden flex flex-col items-center justify-center py-20 text-slate-300">
+                            <i data-lucide="database" class="w-12 h-12 mb-4 opacity-20"></i>
+                            <p class="font-bold uppercase text-[10px] tracking-widest">No Records Found</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <nav class="lg:hidden fixed bottom-6 left-6 right-6 h-20 glass rounded-3xl flex items-center justify-around px-6 z-50 shadow-2xl border-white/60">
+            <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="text-indigo-600"><i data-lucide="home" class="w-7 h-7"></i></button>
+            <button onclick="fetchData()" class="w-14 h-14 bg-indigo-600 text-white rounded-2xl shadow-xl shadow-indigo-200 -mt-12 border-4 border-slate-50 flex items-center justify-center">
+                <i data-lucide="refresh-cw" id="mobileRefreshIcon" class="w-7 h-7"></i>
+            </button>
+            <button onclick="logout()" class="text-slate-400"><i data-lucide="log-out" class="w-7 h-7"></i></button>
+        </nav>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        const API_URL = "https://script.google.com/macros/s/AKfycbylwlrzl744VcO8OJbvkmHdZKmM7v88PlDxAjQ9ifWAPSnxt0hhQGJz3xoFlBRAIeHUXw/exec";
+        const AUTH = { user: "admin", pass: "1234" };
+
+        // 1. Auth Logic
+        function handleLogin() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            if (u === AUTH.user && p === AUTH.pass) {
+                sessionStorage.setItem('isAdmin', 'true');
+                showDashboard();
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+                document.getElementById('password').value = "";
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('dashboardContent').classList.remove('hidden');
+            fetchData();
+        }
+
+        function logout() {
+            sessionStorage.removeItem('isAdmin');
+            location.reload();
+        }
+
+        if (sessionStorage.getItem('isAdmin') === 'true') showDashboard();
+
+        // 2. Data Fetching
+        async function fetchData() {
+            const refreshIcons = [document.getElementById('refreshIcon'), document.getElementById('mobileRefreshIcon')];
+            refreshIcons.forEach(icon => icon?.classList.add('animate-spin'));
+            
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                renderDashboard(data);
+            } catch (error) {
+                console.error("Fetch error:", error);
+            } finally {
+                refreshIcons.forEach(icon => icon?.classList.remove('animate-spin'));
+                setTimeout(() => {
+                    document.getElementById('loader').classList.add('opacity-0');
+                    setTimeout(() => document.getElementById('loader').classList.add('hidden'), 500);
+                }, 800);
+            }
+        }
+
+        function renderDashboard(data) {
+            const tableBody = document.getElementById('tableBody');
+            const noData = document.getElementById('noData');
+            
+            if (!data || data.length === 0) {
+                tableBody.innerHTML = "";
+                noData.classList.remove('hidden');
+                return;
+            }
+
+            noData.classList.add('hidden');
+            tableBody.innerHTML = "";
+            let revenue = 0;
+
+            [...data].reverse().forEach(row => {
+                const amount = parseFloat(row.amount) || 0;
+                revenue += amount;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition-colors";
+                tr.innerHTML = `
+                    <td class="px-8 py-5 font-bold text-slate-700">${row.name}</td>
+                    <td class="px-8 py-5 text-slate-500 font-medium">${row.shop}</td>
+                    <td class="px-8 py-5"><span class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[10px] font-bold uppercase tracking-tight">${row.product}</span></td>
+                    <td class="px-8 py-5 font-extrabold text-slate-900">₹${amount.toLocaleString('en-IN')}</td>
+                    <td class="px-8 py-5"><div class="flex items-center gap-1.5 text-green-600 font-bold text-[10px] tracking-widest"><div class="w-1.5 h-1.5 bg-green-500 rounded-full"></div> PAID</div></td>
+                    <td class="px-8 py-5 text-[11px] font-medium text-slate-400">${row.time}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            document.getElementById('totalRevenue').innerText = `₹${revenue.toLocaleString('en-IN')}`;
+            document.getElementById('totalCount').innerText = data.length;
+            document.getElementById('avgTicket').innerText = `₹${Math.round(revenue / data.length || 0)}`;
+            lucide.createIcons();
+        }
+
+        // 3. Search & UI Helpers
+        function filterTable() {
+            const filter = document.getElementById("searchInput").value.toUpperCase();
+            const tr = document.getElementById("txnTable").getElementsByTagName("tr");
+            for (let i = 1; i < tr.length; i++) {
+                tr[i].style.display = (tr[i].textContent.toUpperCase().indexOf(filter) > -1) ? "" : "none";
+            }
+        }
+
+        function exportData() {
+            let csv = [];
+            document.querySelectorAll("#txnTable tr").forEach(row => {
+                let r = [];
+                row.querySelectorAll("td, th").forEach(col => r.push(col.innerText));
+                csv.push(r.join(","));
+            });
+            const blob = new Blob([csv.join("\n")], {type: "text/csv"});
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `YK-Export-${new Date().toLocaleDateString()}.csv`;
+            link.click();
+        }
+
+        function scrollToTxn() {
+            document.getElementById('transactionSection').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
